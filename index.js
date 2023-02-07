@@ -46,17 +46,46 @@ app.get("/", (req, res) => {
 });
 
 app.get("/article/:slug", (req, res) => {
+    let query = `SELECT article.*, author.name AS author_name FROM article JOIN author ON article.author_id = author.id WHERE article.slug="${req.params.slug}"`;
+    let article;
+    con.query(query, (err, result) => {
+        if (err) throw err;
+        article = result[0];
+        console.log(article);
+        res.render("article", {
+            article: article,
+            author_name: article.author_name
+        });
+    });
+});
+
+app.get("/article/:slug", (req, res) => {
     let query = `SELECT * FROM article WHERE slug="${req.params.slug}"`
     let article
     con.query(query, (err, result) => {
         if (err) throw err
         article = result
-        console.log(article)
+        //console.log(article)
         res.render("article", {
             article: article
         })
     })
 });
+
+app.get("/author/:author_id", (req, res) => {
+    let query = `SELECT article.*, author.name AS author_name FROM article JOIN author ON article.author_id = author.id WHERE article.author_id = ${req.params.author_id}`;
+    let articles = []
+    con.query(query, (err, result) => {
+        if (err) throw err
+        articles = result
+        let author_name = result[0].author_name
+        res.render("author", {
+            articles: articles,
+            author_name: author_name
+        })
+    })
+});
+
 
 
 app.listen(3000, () => {
